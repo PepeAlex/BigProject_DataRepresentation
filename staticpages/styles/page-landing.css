@@ -1,0 +1,108 @@
+:root {
+    font-size: 40%;
+}
+
+#page-landing {
+    background: #ff990056;
+}
+
+#page-landing #container {
+    color:rgb(105, 98, 86);
+}
+
+.logo-container img {
+    height: 15rem;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 3.2rem;
+}
+
+.logo-container h2 {
+    font-weight: 500;
+    font-size: 3.6rem;
+    line-height: 4.6rem;
+    margin-top: 0.8rem;
+}
+
+.hero-image {
+    width: 100%;
+    margin-top: 5rem;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    margin: 3.2rem 0;
+}
+
+.buttons-container a {
+    width: 30rem;
+    height: 10.4rem;
+    border-radius: 0.8rem;
+    margin-right: 1.6rem;
+    font: 700 2.4rem Arial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    transition: background 0.2s;
+}
+
+.buttons-container a img {
+    width: 4rem;
+    margin-right: 2.4rem;
+}
+
+.buttons-container a.study {
+    background: #E19F3B;
+}
+
+.buttons-container a.study:hover {
+    background: #9e8763;
+}
+
+
+@media (max-width: 699px) {
+    :root {
+        font-size: 40%;
+    }
+}
+
+@media (min-width: 1100px) {
+    #page-landing #container{
+        max-width: 1100px;
+        display: grid;
+        grid-template-columns: 2fr 1fr 2fr;
+        grid-template-rows: 350px 1fr;
+        grid-template-areas:
+        "study image image"
+        "button button texting" ;
+        column-gap: 87px;
+        row-gap: 86px;
+    }
+
+    .logo-container {
+        grid-area: study;
+        text-align: initial;
+        align-self: center;
+    }
+
+    .logo-container img {
+        height: 127%;
+    }
+
+    .hero-image {
+        grid-area: image;
+        height: 350px;
+    }
+
+    .buttons-container {
+        grid-area: button;
+        justify-content: flex-start;
+    }
+
+    
+}

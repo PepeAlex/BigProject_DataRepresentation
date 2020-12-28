@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+        <link rel="stylesheet" href="/styles/header.css"> 
+        
+        <style>
+            table, th, td {
+                border: 1px solid black;
+            }
+            main {
+                margin-top: 3rem;
+                margin-left: 8rem;
+            }
+        </style>  
+    </head>
+
+    </body>
+
+    <body id="page-study">
+        <div id="container">
+            <header class="page-header">
+                <div class="top-bar-container">
+                    <a href="lesson.html">
+                        <img src="/image/icons/back.svg" alt="Back">
+                    </a>
+                        <img src="/image/logo.svg" alt="Logo">
+                </div>
+                <div class="header-content" id="header-content">
+                    <strong>Here the lecturers available</strong>
+                </div>
+            </header>
+            <main>
+                <article class="teacher-item">
+                    <div id="display">
+                        <table id="teacherTable">
+                            <tr>
+                                <th>ID</th><th>LECTURER</th><th>SUBJECT</th><th>DELIVERED</th><th>PRICE</th>
+                            </tr>
+                        </table>
+                        <p>Join to lectures' team!</p>
+                        <button onclick="showCreate()">JOIN</button>
+                    </div>
+                </article>
+                                
+                <div id="create-update" style="display:none">
+                    <table id="createUpdateForm">
+                        <tr>
+                            <td>ID</td>
+                            <td><input type="text" name="id" id="idInput"></td>
+                        </tr>
+                        <tr>
+                            <td>LECTURER</td>
+                            <td><input type="text" name="lecturer"></td>
+                        </tr>
+                        <tr>
+                            <td>SUBJECT</td>
+                            <td><input type="text" name="subject"></td>
+                        </tr>
+                        <tr>
+                            <td>DELIVERED</td>
+                            <td><input type="text" name="delivered"></td>
+                        </tr>
+                        <tr>
+                            <td>PRICE</td>
+                            <td><input type="currency" name="price"></td>
+                        </tr>
+                            <td></td><td>
+                                <button id="create-button" onclick="doCreate()">CREATE</button>
+                                <button id="update-button" onclick="doUpdate()">UPDATE</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </main>
+        </div>
+        <script>
+            function showCreate(){
+                document.getElementById("display").style.display = "none"
+                document.getElementById("update-button").style.display = "none"
+                document.getElementById("create-button").style.display = "block"
+                document.getElementById("create-update").style.display = "block"
+            }
+
+            function showUpdate(thisElem){
+                var rowElement = thisElem.parentNode.parentNode;
+                lessons = readBookFromRow(rowElement)
+                populateForm(lessons)
+                
+                document.getElementById("display").style.display = "none"
+                document.getElementById("update-button").style.display = "block"
+                document.getElementById("create-button").style.display = "none"
+                document.getElementById("create-update").style.display = "block"
+            }
+
+            function readBookFromRow(rowElement){
+                lessons = {}
+                lessons.id = rowElement.getAttribute("id");
+                lessons.lecturer = rowElement.cells[1].firstChild.textContent
+                lessons.subject = rowElement.cells[2].firstChild.textContent
+                lessons.delivered = rowElement.cells[3].firstChild.textContent
+                lessons.price = rowElement.cells[4].firstChild.textContent
+
+                return lessons
+            }
+
+            function clearForm(lessons){
+                var form = document.getElementById("createUpdateForm")
+                
+                form.querySelector('input[name="id"]').value = " "
+                form.querySelector('input[name="id"]').disabled = false
+
+                form.querySelector('input[name="lecturer"]').value = " "
+                form.querySelector('input[name="subject"]').value = " "
+                form.querySelector('input[name="delivered"]').value = " "
+                form.querySelector('input[name="price"]').value = " "
+            }
+
+            function populateForm(lessons){
+                var form = document.getElementById("createUpdateForm")
+                
+                form.querySelector('input[name="id"]').value = lessons.id
+                form.querySelector('input[name="id"]').disabled = true
+
+                form.querySelector('input[name="lecturer"]').value = lessons.lecturer
+                form.querySelector('input[name="subject"]').value = lessons.subject
+                form.querySelector('input[name="delivered"]').value = lessons.delivered
+                form.querySelector('input[name="price"]').value = lessons.price
+            }
+
+            function doCreate(){
+                lessons = getBookFromForm(lessons)
+                $.ajax({
+                    url:"http://127.0.0.1:5000/lessons",
+                    data: JSON.stringify(lessons),
+                    method: "POST",
+                    dataType:"JSON",
+                    contentType: "application/json; charset=utf-8", 
+                    success: function(results){
+                        addBookToTable(lessons)
+                        showDisplay()
+                        clearForm()
+                    },
+                    error: function(xhr, status, error){
+                        console.log("error: " + error)
+                    }
+                })
+            }
+
+            function doUpdate(){
+                lessons = getBookFromForm()
+                updateServer(lessons)
+                
+            }
+
+            function updateServer(lessons){
+                $.ajax({
+                    url:"http://127.0.0.1:5000/lessons/" + lessons.id,
+                    data: JSON.stringify(lessons),
+                    method: "PUT",
+                    dataType:"JSON",
+                    contentType: "application/json; charset=utf-8", 
+                    success: function(results){
+                        updateTableRow(lessons)
+                        showDisplay()
+                        clearForm()
+                    },
+                    error: function(xhr, status, error){
+                        console.log("error: " + error)
+                    }
+                })
+            }
+
+            function doDelete(thisElem){
+                var tableElement =document.getElementById("teacherTable");
+                var rowElement = thisElem.parentNode.parentNode;
+                var index = rowElement.rowIndex;
+                ID = rowElement.getAttribute("id");
+                $.ajax({
+                    url: "http://127.0.0.1:5000/lessons/" + ID,
+                    method: "DELETE",
+                    data: " ",
+                    dateType: "JSON",
+                    success: function(result){
+                        tableElement.deleteRow(index)
+                    },
+                    error:function(xhr, status, error){
+                        console.log("error: " + error)
+                    }
+                })
+            }
+
+            function updateTableRow(lessons){
+                rowElement = document.getElementById(lessons.id)
+                rowElement.cells[1].firstChild.textContent = lessons.lecturer
+                rowElement.cells[2].firstChild.textContent = lessons.subject
+                rowElement.cells[3].firstChild.textContent = lessons.delivered
+                rowElement.cells[4].firstChild.textContent = lessons.price
+                
+            }
+
+            function getBookFromForm(){
+                var form = document.getElementById("createUpdateForm")
+                var lessons = {}
+                lessons.id = form.querySelector('input[name="id"]').value
+                lessons.lecturer = form.querySelector('input[name="lecturer"]').value
+                lessons.subject = form.querySelector('input[name="subject"]').value
+                lessons.delivered = form.querySelector('input[name="delivered"]').value
+                lessons.price = form.querySelector('input[name="price"]').value
+                return lessons
+            }
+
+            function showDisplay(){
+                document.getElementById("display").style.display = "block"
+                document.getElementById("create-update").style.display = "none"
+            }
+
+            function populateTable(){
+                $.ajax({
+                    url: "http://127.0.0.1:5000/lessons",
+                    method:"GET",
+                    dataType:"JSON",
+                    success: function(results){
+                        for (lessons of results){
+                            addBookToTable(lessons)
+                        }
+                    },
+                    error: function(xhr, status, error){
+                        console.log("error: " + error + " code: " + status)
+                    }
+                })
+            }
+
+            function addBookToTable(lessons){
+                tableElem = document.getElementById("teacherTable")
+                rowElem = tableElem.insertRow(-1)
+                rowElem.setAttribute("id", lessons.id)
+                cell1 = rowElem.insertCell(0)
+                cell1.innerHTML = lessons.id
+                cell2 = rowElem.insertCell(1)
+                cell2.innerHTML = lessons.lecturer
+                cell3 = rowElem.insertCell(2)
+                cell3.innerHTML = lessons.subject
+                cell4 = rowElem.insertCell(3)
+                cell4.innerHTML = lessons.delivered
+                cell5 = rowElem.insertCell(4)
+                cell5.innerHTML = lessons.price
+                cell6 = rowElem.insertCell(5)
+                cell6.innerHTML = '<button onclick="showUpdate(this)">UPDATE</button>'
+                cell7 = rowElem.insertCell(6)
+                cell7.innerHTML = '<button onclick="doDelete(this)">DELETE</button>'
+            }
+            populateTable()
+        </script>
+    </body>
+</html>
